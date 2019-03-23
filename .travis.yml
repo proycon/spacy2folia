@@ -19,3 +19,6 @@ install:
     - python -m spacy download en
 script:
     - python spacy2folia/test/test.py
+    - echo "Hello world." > test.txt
+    - spacy2folia --model en test.txt
+    - cat test.folia.xml
