@@ -1,0 +1,21 @@
+# whitelist
+branches:
+    only:
+        - master
+notifications:
+  irc:
+    channels:
+      - "irc.uvt.nl#gitlama"
+    template:
+      - "%{repository_slug}#%{build_number} %{message} --> %{build_url}"
+    skip_join: true
+language: python
+dist: xenial
+python:
+    - "3.6"
+install:
+    - pip install folia spacy
+    - pip install .
+    - python -m spacy download en
+script:
+    - bash spacy2folia/test/test.py
