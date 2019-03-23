@@ -4,6 +4,7 @@ import os
 import folia.main as folia
 
 def convert(doc: spacy.tokens.doc.Doc, document_id: str = "untitled", model = None, **kwargs) -> folia.Document:
+    setprefix = kwargs.get('setprefix','https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/spacy/spacy')
     processor = folia.Processor.create(name="spacy2folia")
     subprocessor = folia.Processor(name="spacy", version=spacy.__version__)
     processor.append(subprocessor)
@@ -16,12 +17,18 @@ def convert(doc: spacy.tokens.doc.Doc, document_id: str = "untitled", model = No
                     datasource.metadata[key] = value
                 elif isinstance(value, list):
                     datasource.metadata[key] = ",".join(value)
+        if setprefix not in kwargs:
+            setprefix += "-" + model.meta['name'].replace(" ","_") + "_" + model.meta['lang']
+    elif setprefix not in kwargs:
+        if doc.lang_:
+            setprefix += "-" + doc.lang_
+        else:
+            setprefix += "-unknown"
     foliadoc = folia.Document(id=document_id, autodeclare=True, processor=processor, debug=kwargs.get('debug',0) )
     if doc.lang_:
         foliadoc.metadata['lang'] = doc.lang_
     body = foliadoc.append(folia.Text(foliadoc, id=document_id + ".text"))
     paragraphs = kwargs.get('paragraphs', False)
-    setprefix = kwargs.get('setprefix','spacy')
     newparagraph = True
     if paragraphs and newparagraph:
         paragraph = body.append(folia.Paragraph)
@@ -49,27 +56,27 @@ def convert(doc: spacy.tokens.doc.Doc, document_id: str = "untitled", model = No
                 foliaword = foliasentence.append(folia.Word, text.strip(), space=space)
 
                 if word.tag_:
-                    foliaword.append(folia.PosAnnotation, set=setprefix+"-pos-" + word.lang_, cls=word.tag_)
+                    foliaword.append(folia.PosAnnotation, set=setprefix+"-pos", cls=word.tag_)
                 if word.pos_:
                     foliaword.append(folia.PosAnnotation, set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/universal-pos.foliaset.ttl", cls=word.pos_)
                 if word.lemma_:
-                    foliaword.append(folia.LemmaAnnotation, set=setprefix+"-lemma-" + word.lang_, cls=word.lemma_)
+                    foliaword.append(folia.LemmaAnnotation, set=setprefix+"-lemma", cls=word.lemma_)
                 foliawords.append(foliaword)
 
 
         for entity in sentence.ents:
             spanwords = [ w for w in foliawords[entity.start-sentence.start:entity.end-sentence.end] if w is not None ]
-            foliaentity = foliasentence.add(folia.Entity, *spanwords, set=setprefix+"-namedentitities-" + doc.lang_, cls=entity.label_)
+            foliaentity = foliasentence.add(folia.Entity, *spanwords, set=setprefix+"-namedentitities", cls=entity.label_)
 
         for chunk in sentence.noun_chunks:
             spanwords = [ w for w in foliawords[chunk.start-sentence.start:chunk.end-sentence.end] if w is not None ]
-            foliaentity = foliasentence.add(folia.Chunk, *spanwords, set=setprefix+"-nounchunks-" + doc.lang_, cls=chunk.label_)
+            foliaentity = foliasentence.add(folia.Chunk, *spanwords, set=setprefix+"-nounchunks", cls=chunk.label_)
 
         for i, word in enumerate(tokens):
             if word.dep_:
                 depword = foliawords[i]
                 headword  = foliawords[word.head.i-sentence.start]
-                dependency = foliasentence.add(folia.Dependency, set=setprefix+"-dependencies-"+doc.lang_, cls=word.dep_)
+                dependency = foliasentence.add(folia.Dependency, set=setprefix+"-dependencies", cls=word.dep_)
                 dependency.append(folia.DependencyHead, headword)
                 dependency.append(folia.DependencyDependent, depword)
 
