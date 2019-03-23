@@ -80,7 +80,7 @@ def main():
 
     for filename in args.files:
         docid = ".".join(os.path.basename(filename).split(".")[:-1])
-        with open(filename,'r','utf-8') as f:
+        with open(filename,'r',encoding='utf-8') as f:
             text = f.read()
         doc = nlp(text)
         foliadoc = convert(doc, docid, paragraphs=not args.noparagraphs)
