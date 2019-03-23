@@ -17,13 +17,20 @@ def convert(doc: spacy.tokens.doc.Doc, document_id: str = "untitled", **kwargs) 
         anchor = body
     for sentence in doc.sents:
         foliasentence = anchor.append(folia.Sentence)
-        for word in sentence:
+        foliawords = [] #will map 1-1 to the spacy tokens, may contain None elements for linebreaks
+        foliaword = None
+        tokens = list(sentence)
+        for i, word in enumerate(tokens):
             text = word.text
             if text == "\n":
-                if paragraphs:
+                if foliaword is not None and i < len(tokens) - 1:
+                    foliasentence.append(folia.Linebreak)
+                    foliaword.space = True #in case a linebreak occurs in a sentence
+                elif paragraphs:
                     anchor = paragraph = body.append(folia.Paragraph)
                 else:
                     body.append(folia.Whitespace)
+                foliawords.append(None)
             elif text.strip():
                 space = word.whitespace_ != ""
                 foliaword = foliasentence.append(folia.Word, text.strip(), space=space)
@@ -32,16 +39,25 @@ def convert(doc: spacy.tokens.doc.Doc, document_id: str = "untitled", **kwargs) 
                     foliaword.append(folia.PosAnnotation, set=setprefix+"-pos-" + word.lang_, cls=word.tag_)
                 if word.lemma_:
                     foliaword.append(folia.LemmaAnnotation, set=setprefix+"-lemma-" + word.lang_, cls=word.lemma_)
+                foliawords.append(foliaword)
 
-        words = list(foliasentence.words())
 
         for entity in sentence.ents:
-            spanwords = words[entity.start-sentence.start:entity.end-sentence.end]
+            spanwords = [ w for w in foliawords[entity.start-sentence.start:entity.end-sentence.end] if w is not None ]
             foliaentity = foliasentence.add(folia.Entity, *spanwords, set=setprefix+"-namedentitities-" + doc.lang_, cls=entity.label_)
 
         for chunk in sentence.noun_chunks:
-            spanwords = words[chunk.start-sentence.start:chunk.end-sentence.end]
+            spanwords = [ w for w in foliawords[chunk.start-sentence.start:chunk.end-sentence.end] if w is not None ]
             foliaentity = foliasentence.add(folia.Chunk, *spanwords, set=setprefix+"-nounchunks-" + doc.lang_, cls=chunk.label_)
+
+        for i, word in enumerate(tokens):
+            if word.dep_:
+                depword = foliawords[i]
+                headword  = foliawords[word.head.i-sentence.start]
+                dependency = foliasentence.add(folia.Dependency, set=setprefix+"-dependencies-"+doc.lang_, cls=word.dep_)
+                dependency.append(folia.DependencyHead, headword)
+                dependency.append(folia.DependencyDependent, depword)
+
 
 
 
