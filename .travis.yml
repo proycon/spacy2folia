@@ -18,4 +18,4 @@ install:
     - pip install .
     - python -m spacy download en
 script:
-    - bash spacy2folia/test/test.py
+    - python spacy2folia/test/test.py
