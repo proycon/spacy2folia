@@ -35,5 +35,5 @@ setup(
         ]
     },
     #include_package_data=True,
-    install_requires=['folia >= 2.0.1', 'spacy >= 2.1']
+    install_requires=['folia >= 2.0.4', 'spacy >= 2.1']
 )
