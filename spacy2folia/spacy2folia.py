@@ -3,9 +3,22 @@ import spacy
 import os
 import folia.main as folia
 
-def convert(doc: spacy.tokens.doc.Doc, document_id: str = "untitled", **kwargs) -> folia.Document:
+def convert(doc: spacy.tokens.doc.Doc, document_id: str = "untitled", model = None, **kwargs) -> folia.Document:
     processor = folia.Processor.create(name="spacy2folia")
+    subprocessor = folia.Processor(name="spacy", version=spacy.__version__)
+    processor.append(subprocessor)
+    if model is not None and hasattr(model,'meta'):
+        datasource = folia.Processor(name=model.meta['name'] + "_" + model.meta['lang'], type=folia.ProcessorType.DATASOURCE, version = model.meta['version'])
+        subprocessor.append(datasource)
+        for key, value in model.meta.items():
+            if key not in ('name','lang','version'): #we already covered those
+                if isinstance(value, str):
+                    datasource.metadata[key] = value
+                elif isinstance(value, list):
+                    datasource.metadata[key] = ",".join(value)
     foliadoc = folia.Document(id=document_id, autodeclare=True, processor=processor, debug=kwargs.get('debug',0) )
+    if doc.lang_:
+        foliadoc.metadata['lang'] = doc.lang_
     body = foliadoc.append(folia.Text(foliadoc, id=document_id + ".text"))
     paragraphs = kwargs.get('paragraphs', False)
     setprefix = kwargs.get('setprefix','spacy')
@@ -85,7 +98,7 @@ def main():
         with open(filename,'r',encoding='utf-8') as f:
             text = f.read()
         doc = nlp(text)
-        foliadoc = convert(doc, docid, paragraphs=not args.noparagraphs)
+        foliadoc = convert(doc, docid, nlp, paragraphs=not args.noparagraphs)
         if args.stdout:
             print(foliadoc.xmlstring())
         else:

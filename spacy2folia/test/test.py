@@ -12,7 +12,7 @@ from spacy2folia import spacy2folia
 
 nlp = spacy.load("en_core_web_sm")
 doc = nlp(text)
-foliadoc = spacy2folia.convert(doc, "untitled", paragraphs=True)
+foliadoc = spacy2folia.convert(doc, "untitled", nlp, paragraphs=True)
 print(foliadoc.xmlstring())
 
 
