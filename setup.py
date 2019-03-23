@@ -11,10 +11,10 @@ def read(fname):
 
 setup(
     name = "Spacy2FoLiA",
-    version = "0.1", #also change in __init__.py
+    version = "0.2", #also change in __init__.py
     author = "Maarten van Gompel",
     author_email = "proycon@anaproy.nl",
-    description = ("Library that adds FoLiA (format for linguistic annotation) support to Spacy"),
+    description = ("Library that adds FoLiA (format for linguistic annotation) support to spaCy"),
     license = "GPL",
     keywords = "nlp computational_linguistics spacy linguistics toolkit folia",
     url = "https://proycon.github.io/folia",

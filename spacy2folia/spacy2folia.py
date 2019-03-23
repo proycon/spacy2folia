@@ -2,14 +2,15 @@ import argparse
 import spacy
 import os
 import folia.main as folia
+from spacy2folia import VERSION
 
 def convert(doc: spacy.tokens.doc.Doc, document_id: str = "untitled", model = None, **kwargs) -> folia.Document:
     setprefix = kwargs.get('setprefix','https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/spacy/spacy')
-    processor = folia.Processor.create(name="spacy2folia")
+    processor = folia.Processor.create(name="spacy2folia",version=VERSION)
     subprocessor = folia.Processor(name="spacy", version=spacy.__version__)
     processor.append(subprocessor)
     if model is not None and hasattr(model,'meta'):
-        datasource = folia.Processor(name=model.meta['name'] + "_" + model.meta['lang'], type=folia.ProcessorType.DATASOURCE, version = model.meta['version'])
+        datasource = folia.Processor(name=model.meta['lang'] + "_" + model.meta['name'], type=folia.ProcessorType.DATASOURCE, version = model.meta['version'])
         subprocessor.append(datasource)
         for key, value in model.meta.items():
             if key not in ('name','lang','version'): #we already covered those
@@ -18,7 +19,7 @@ def convert(doc: spacy.tokens.doc.Doc, document_id: str = "untitled", model = No
                 elif isinstance(value, list):
                     datasource.metadata[key] = ",".join(value)
         if setprefix not in kwargs:
-            setprefix += "-" + model.meta['name'].replace(" ","_") + "_" + model.meta['lang']
+            setprefix += "-" + model.meta['lang'] + "_" + model.meta['name'].replace(" ","_")
     elif setprefix not in kwargs:
         if doc.lang_:
             setprefix += "-" + doc.lang_
@@ -91,8 +92,8 @@ def convert(doc: spacy.tokens.doc.Doc, document_id: str = "untitled", model = No
     return foliadoc
 
 def main():
-    parser = argparse.ArgumentParser(description="", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-m','--model', type=str,help="Spacy model to load", action='store')
+    parser = argparse.ArgumentParser(description="Run a spaCy pipeline and convert the output to FoLiA", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('-m','--model', type=str,help="spaCy model to load (you can enter an iso-639-1 language code such as en, de, nl, fr here)", action='store',default='en')
     parser.add_argument('-P','--no-paragraphs',dest="noparagraphs", help="Disable paragraph inference", action='store_true')
     parser.add_argument('--stdout', help="Output to standard output instead of writing files", action='store_true')
     parser.add_argument('files', nargs='+', help="Input files (plain text)")
@@ -101,7 +102,12 @@ def main():
     nlp = spacy.load(args.model)
 
     for filename in args.files:
-        docid = ".".join(os.path.basename(filename).split(".")[:-1])
+        docid = ".".join(os.path.basename(filename).replace(" ","_").split(".")[:-1])
+        if not folia.isncname(docid):
+            if docid[0].isnumeric():
+                docid = "D" + docid
+            docid = docid.replace(":","_").replace(" ","_")
+
         with open(filename,'r',encoding='utf-8') as f:
             text = f.read()
         doc = nlp(text)
