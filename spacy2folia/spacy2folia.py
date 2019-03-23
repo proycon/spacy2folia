@@ -37,6 +37,8 @@ def convert(doc: spacy.tokens.doc.Doc, document_id: str = "untitled", **kwargs) 
 
                 if word.tag_:
                     foliaword.append(folia.PosAnnotation, set=setprefix+"-pos-" + word.lang_, cls=word.tag_)
+                if word.pos_:
+                    foliaword.append(folia.PosAnnotation, set="https://raw.githubusercontent.com/proycon/folia/master/setdefinitions/universal-pos.foliaset.ttl", cls=word.pos_)
                 if word.lemma_:
                     foliaword.append(folia.LemmaAnnotation, set=setprefix+"-lemma-" + word.lang_, cls=word.lemma_)
                 foliawords.append(foliaword)
