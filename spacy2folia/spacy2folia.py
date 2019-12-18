@@ -16,7 +16,7 @@ def convert(doc: spacy.tokens.doc.Doc, document_id: str = "untitled", model = No
             if key not in ('name','lang','version'): #we already covered those
                 if isinstance(value, str):
                     datasource.metadata[key] = value
-                elif isinstance(value, list):
+                elif isinstance(value, (list,tuple)) and all( isinstance(x,str) for x in value):
                     datasource.metadata[key] = ",".join(value)
         if setprefix not in kwargs:
             setprefix += "-" + model.meta['lang'] + "_" + model.meta['name'].replace(" ","_")
