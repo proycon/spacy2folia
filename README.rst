@@ -21,11 +21,15 @@ Using the command line tool on an input file named ``test.txt``:
 
 ``$ spacy2folia --model en_core_web_sm test.txt``
 
-Results in a document ``test.folia.xml`` in the current working directory.
+This results in a document ``test.folia.xml`` in the current working directory.
 
-From Python:
+You can also invoke the command line tool on one or more FoLiA documents as input (note that this will edit the given file in-place unless you set ``--stdout``!)
 
-.. code::
+``$ spacy2folia --model en_core_web_sm document.folia.xml``
+
+Usage from Python:
+
+.. code:: python
 
    import spacy
    from spacy2folia import spacy2folia
@@ -35,6 +39,19 @@ From Python:
    nlp = spacy.load("en_core_web_sm")
    doc = nlp(text)
    foliadoc = spacy2folia.convert(doc, "example", paragraphs=True)
-   folia.doc.save("/tmp/example.folia.xml")
+   foliadoc.save("/tmp/output.folia.xml")
+
+Usage from Python with FoLiA input:
+
+.. code:: python
+
+   import spacy
+   import folia.main as folia
+   from spacy2folia import spacy2folia
+
+   foliadoc = folia.Document(file="/tmp/input.folia.xml")
+   nlp = spacy.load("en_core_web_sm")
+   spacy2folia.convert_folia(foliadoc, nlp)
+   foliadoc.save("/tmp/output.folia.xml")
 
 
