@@ -184,7 +184,7 @@ def main():
         if filename.lower().endswith(".xml"):
             #FoLiA
             foliadoc = folia.Document(file=filename, autodeclare=True, processor=get_processor(nlp, None, args.setprefix), debug=args.debug )
-            foliadoc = convert_folia(folia_doc, nlp, default_tokenizer)
+            foliadoc = convert_folia(foliadoc, nlp, default_tokenizer)
             if args.stdout:
                 print(foliadoc.xmlstring())
             else:
