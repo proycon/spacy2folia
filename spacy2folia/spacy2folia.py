@@ -188,7 +188,7 @@ def main():
             if args.stdout:
                 print(foliadoc.xmlstring())
             else:
-                foliadoc.save(os.path.basename(doc.filename))
+                foliadoc.save(os.path.basename(foliadoc.filename))
         else:
             docid = ".".join(os.path.basename(filename).replace(" ","_").split(".")[:-1])
             if not folia.isncname(docid):
