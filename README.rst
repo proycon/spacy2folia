@@ -23,9 +23,12 @@ Using the command line tool on an input file named ``test.txt``:
 
 This results in a document ``test.folia.xml`` in the current working directory.
 
-You can also invoke the command line tool on one or more FoLiA documents as input (note that this will edit the given file in-place unless you set ``--stdout``!)
+You can also invoke the command line tool on one or more FoLiA documents as input:
 
 ``$ spacy2folia --model en_core_web_sm document.folia.xml``
+
+The output file will be written to the currrent working directory (so it may overwirte the input if it's in the same
+directory!)
 
 Usage from Python:
 
