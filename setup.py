@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name = "Spacy2FoLiA",
-    version = "0.3.0", #also change in __init__.py
+    version = "0.3", #also change in __init__.py
     author = "Maarten van Gompel",
     author_email = "proycon@anaproy.nl",
     description = ("Library that adds FoLiA (format for linguistic annotation) support to spaCy"),
