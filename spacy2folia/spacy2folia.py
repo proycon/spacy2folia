@@ -107,9 +107,12 @@ def process_sentence(foliadoc, sentence, anchor, foliasentence, setprefix, do_pa
         spanwords = [ w for w in foliawords[entity.start-start:entity.end-end] if w is not None ]
         foliaentity = foliasentence.add(folia.Entity, *spanwords, set=setprefix+"-namedentitities", cls=entity.label_)
 
-    for chunk in sentence.noun_chunks:
-        spanwords = [ w for w in foliawords[chunk.start-start:chunk.end-end] if w is not None ]
-        foliaentity = foliasentence.add(folia.Chunk, *spanwords, set=setprefix+"-nounchunks", cls=chunk.label_)
+    try:
+        for chunk in sentence.noun_chunks:
+            spanwords = [ w for w in foliawords[chunk.start-start:chunk.end-end] if w is not None ]
+            foliaentity = foliasentence.add(folia.Chunk, *spanwords, set=setprefix+"-nounchunks", cls=chunk.label_)
+    except NotImplementedError as e:
+        print("WARNING: Not processing noun chunks: " + str(e) ,file=sys.stderr)
 
     for i, word in enumerate(tokens):
         if word.dep_:
