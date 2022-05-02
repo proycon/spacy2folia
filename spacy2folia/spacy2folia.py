@@ -118,9 +118,10 @@ def process_sentence(foliadoc, sentence, anchor, foliasentence, setprefix, do_pa
         if word.dep_:
             depword = foliawords[i]
             headword  = foliawords[word.head.i-start]
-            dependency = foliasentence.add(folia.Dependency, set=setprefix+"-dependencies", cls=word.dep_)
-            dependency.append(folia.DependencyHead, headword)
-            dependency.append(folia.DependencyDependent, depword)
+            if headword and depword:
+                dependency = foliasentence.add(folia.Dependency, set=setprefix+"-dependencies", cls=word.dep_)
+                dependency.append(folia.DependencyHead, headword)
+                dependency.append(folia.DependencyDependent, depword)
 
     return anchor
 
