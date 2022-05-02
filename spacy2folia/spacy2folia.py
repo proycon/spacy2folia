@@ -177,7 +177,7 @@ def main():
     parser.add_argument('--stdout', help="Output to standard output instead of writing files", action='store_true')
     parser.add_argument('--debug', help="Enable debug mode", action='store_true')
     parser.add_argument('--setprefix', type=str,help="The prefix for the FoLiA Set Definitions", default=SETPREFIX, action='store')
-    parser.add_argument('files', nargs='+', help="Input files, either plain text or FoLiA XML (detected through extension xml)")
+    parser.add_argument('files', nargs='+', help="Input files, either plain text or FoLiA XML (detected through extension xml). Note that any FoLiA files will be edited in place unless you set --stdout")
     args = parser.parse_args()
 
     nlp = spacy.load(args.model)
