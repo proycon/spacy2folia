@@ -172,7 +172,7 @@ class WhitespaceTokenizer(object):
 
 def main():
     parser = argparse.ArgumentParser(description="Run a spaCy pipeline and convert the output to FoLiA", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-m','--model', type=str,help="spaCy model to load (you can enter an iso-639-1 language code such as en, de, nl, fr here)", action='store',default='en')
+    parser.add_argument('-m','--model', type=str,help="spaCy model to load (e.g. en_core_web_sm, nl_core_news_sm)", action='store',default='en_core_web_sm')
     parser.add_argument('-P','--no-paragraphs',dest="noparagraphs", help="Disable paragraph inference", action='store_true')
     parser.add_argument('--stdout', help="Output to standard output instead of writing files", action='store_true')
     parser.add_argument('--debug', help="Enable debug mode", action='store_true')
