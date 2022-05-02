@@ -7,7 +7,7 @@ Spacy-to-FoliA
 .. image:: http://applejack.science.ru.nl/lamabadge.php/spacy2folia
    :target: http://applejack.science.ru.nl/languagemachines/
 
-Convert Spacy output to `FoLiA XML <https://proycon.github.io/folia>`_ Documents.
+Convert Spacy output to `FoLiA XML <https://proycon.github.io/folia>`_ Documents. Also supports FoLiA input.
 
 Installation
 --------------
