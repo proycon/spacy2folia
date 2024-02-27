@@ -103,14 +103,21 @@ def process_sentence(foliadoc, sentence, anchor, foliasentence, setprefix, do_pa
         start = sentence.start
         end = sentence.end
 
-    for entity in sentence.ents:
-        spanwords = [ w for w in foliawords[entity.start-start:entity.end-end] if w is not None ]
-        foliaentity = foliasentence.add(folia.Entity, *spanwords, set=setprefix+"-namedentitities", cls=entity.label_)
+    try:
+        for entity in sentence.ents:
+            spanwords = [ w for w in foliawords[entity.start-start:entity.end-end] if w is not None ]
+            foliaentity = foliasentence.add(folia.Entity, *spanwords, set=setprefix+"-namedentitities", cls=entity.label_)
+    except ValueError:
+        #entities disabled
+        pass
 
     try:
         for chunk in sentence.noun_chunks:
             spanwords = [ w for w in foliawords[chunk.start-start:chunk.end-end] if w is not None ]
             foliaentity = foliasentence.add(folia.Chunk, *spanwords, set=setprefix+"-nounchunks", cls=chunk.label_)
+    except ValueError:
+        #noun chunks explicitly disabled
+        pass
     except NotImplementedError as e:
         print("WARNING: Not processing noun chunks: " + str(e) ,file=sys.stderr)
 
@@ -177,10 +184,22 @@ def main():
     parser.add_argument('--stdout', help="Output to standard output instead of writing files", action='store_true')
     parser.add_argument('--debug', help="Enable debug mode", action='store_true')
     parser.add_argument('--setprefix', type=str,help="The prefix for the FoLiA Set Definitions", default=SETPREFIX, action='store')
+    parser.add_argument('--exclude', type=str, help="Comma separated list of the names of the spacy pipeline components to exclude (See https://spacy.io/api/top-level/#spacy.load)", action='store')
+    parser.add_argument('--enable', type=str, help="Comma separated list of the names of the spacy pipeline components to explicitly enable (See https://spacy.io/api/top-level/#spacy.load)", action='store')
     parser.add_argument('files', nargs='+', help="Input files, either plain text or FoLiA XML (detected through extension xml). Note that any FoLiA files will be edited in place unless you set --stdout")
     args = parser.parse_args()
 
-    nlp = spacy.load(args.model)
+    senter = False
+    kwargs = {}
+    if args.enable:
+        kwargs['enable'] = [ x.strip() for x in args.enable.split(",") ]
+    if args.exclude:
+        kwargs['exclude'] = [ x.strip() for x in args.exclude.split(",") ]
+        if 'parser' in kwargs['exclude']:
+            senter = True
+    nlp = spacy.load(args.model, **kwargs)
+    if senter:
+        nlp.enable_pipe("senter")
     default_tokenizer = nlp.tokenizer
 
     for filename in args.files:

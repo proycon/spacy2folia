@@ -14,6 +14,10 @@ Installation
 
 ``$ pip install spacy2folia``
 
+You also need to install the spacy models you want like:
+
+``python -m spacy download en_core_web_sm``
+
 Usage Example
 ----------------
 
